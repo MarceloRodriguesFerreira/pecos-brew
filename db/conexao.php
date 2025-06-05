@@ -3,6 +3,7 @@ $servername = "localhost";
 $username = "root";
 $password = "tafe2006";
 $database = "pecosbrew";
+$modo_dev = true; 
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $database);

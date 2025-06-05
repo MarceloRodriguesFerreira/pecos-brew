@@ -16,3 +16,17 @@ ADD tipo_envase VARCHAR(50),
 ADD volume_envase DECIMAL(5,2),
 ADD carbonatacao VARCHAR(50),
 ADD observacoes TEXT;
+
+
+
+ALTER TABLE ficha_brassagem 
+MODIFY COLUMN og varchar(11);
+
+ALTER TABLE ficha_brassagem 
+MODIFY COLUMN fg varchar(11);
+
+ALTER TABLE ficha_brassagem 
+MODIFY COLUMN ibu varchar(9);
+
+ALTER TABLE ficha_brassagem 
+CHANGE COLUMN ebc src varchar(11);

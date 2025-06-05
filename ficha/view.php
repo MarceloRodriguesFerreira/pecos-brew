@@ -34,7 +34,7 @@ if (!$ficha) {
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <img src="../img/logo.png" class="logo-img" alt="Pecos Brew">
+        <img src="../img/logob.png" class="logo-img" alt="Pecos Brew">
     </div>
     <div>
         <button class="btn btn-secondary no-print" onclick="window.print()">Imprimir / Salvar PDF</button>
@@ -42,7 +42,7 @@ if (!$ficha) {
     </div>
 </div>
 
-<h1>Ficha de Brassagem</h1>
+<h2>Ficha de Brassagem</h2>
 <h3><?= htmlspecialchars($ficha['nome_receita']) ?> - Lote <?= htmlspecialchars($ficha['numero_lote']) ?></h3>
 <p><strong>Estilo:</strong> <?= htmlspecialchars($ficha['estilo']) ?> | <strong>Data:</strong> <?= htmlspecialchars($ficha['data_brassagem']) ?></p>
 <hr>
@@ -53,7 +53,7 @@ if (!$ficha) {
     <tr><th>OG</th><td><?= $ficha['og'] ?></td>
         <th>FG</th><td><?= $ficha['fg'] ?></td></tr>
     <tr><th>IBU</th><td><?= $ficha['ibu'] ?></td>
-        <th>EBC</th><td><?= $ficha['ebc'] ?></td></tr>
+        <th>SRM</th><td><?= $ficha['srm'] ?></td></tr>
     <tr><th>Eficiência (%)</th><td><?= $ficha['eficiencia'] ?></td>
         <th>Volume Inicial (L)</th><td><?= $ficha['volume_inicial'] ?></td></tr>
     <tr><th>Volume Final (L)</th><td><?= $ficha['volume_final'] ?></td>

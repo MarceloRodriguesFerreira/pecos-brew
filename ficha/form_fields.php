@@ -32,7 +32,7 @@
 <div class="row mb-3">
     <div class="col">
         <label class="form-label">Número do Lote</label>
-        <input type="text" name="numero_lote" class="form-control"
+        <input type="text" name="numero_lote" class="form-control" 
                value="<?= isset($ficha['numero_lote']) ? $ficha['numero_lote'] : '' ?>" required>
     </div>
     <div class="col">
@@ -44,6 +44,11 @@
         <label class="form-label">Cervejeiro Responsável</label>
         <input type="text" name="cervejeiro_responsavel" class="form-control"
                value="<?= isset($ficha['cervejeiro_responsavel']) ? $ficha['cervejeiro_responsavel'] : '' ?>">
+    </div>
+    <div class="col">
+        <label class="form-label">Tempo de Fervura (min)</label>
+        <input type="text" name="tempo_fervura" class="form-control"
+               value="<?= isset($ficha['tempo_fervura']) ? $ficha['tempo_fervura'] : '' ?>">
     </div>
 </div>
 
@@ -63,8 +68,8 @@
         <input type="text" name="ibu" class="form-control" value="<?= isset($ficha['ibu']) ? $ficha['ibu'] : '' ?>">
     </div>
     <div class="col">
-        <label>EBC</label>
-        <input type="text" name="ebc" class="form-control" value="<?= isset($ficha['ebc']) ? $ficha['ebc'] : '' ?>">
+        <label>SRM</label>
+        <input type="text" name="srm" class="form-control" value="<?= isset($ficha['srm']) ? $ficha['srm'] : '' ?>">
     </div>
 </div>
 
