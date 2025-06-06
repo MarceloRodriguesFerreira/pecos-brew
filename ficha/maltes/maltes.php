@@ -3,16 +3,15 @@ include("../../db/conexao.php");
 
 $ficha_id = isset($_GET['ficha_id']) ? intval($_GET['ficha_id']) : 0;
 
-$temperatura = '';
-$tempo = '';
-$descricao = '';
+$nome = '';
+$quantidade = '';
+$unidade = '';
 $edit_id = 0;
 
-// Buscar rampa para edição
+// Buscar malte para edição
 if (isset($_GET['edit'])) {
     $edit_id = intval($_GET['edit']);
-    $stmt = $conn->prepare("SELECT * FROM rampas_mostura WHERE id = ?"); 
-
+    $stmt = $conn->prepare("SELECT * FROM ingredientes_malte WHERE id = ?"); 
     if (!$stmt) {
         //die("Erro na preparação: " . $conn->error);
         $erro = "Não foi possível salvar. Verifique os campos. ";
@@ -24,9 +23,9 @@ if (isset($_GET['edit'])) {
     $result = $stmt->get_result();
     if ($result && $result->num_rows > 0) {
         $dados = $result->fetch_assoc();
-        $temperatura = $dados['temperatura'];
-        $tempo = $dados['tempo'];
-        $descricao = $dados['descricao'];
+        $nome = $dados['nome'];
+        $quantidade = $dados['quantidade'];
+        $unidade = $dados['unidade'];
     } else {
         echo "Erro ao buscar rampa: " . $conn->error;
     }
@@ -35,32 +34,33 @@ if (isset($_GET['edit'])) {
 // Salvar ou Atualizar
 if (isset($_POST['salvar'])) {
     $edit_id = intval($_POST['edit_id']);
-    $temperatura = $_POST['temperatura'];
-    $tempo = $_POST['tempo'];
-    $descricao = $_POST['descricao'];
+    $nome = $_POST['nome'];
+    $quantidade = $_POST['quantidade'];
+    $unidade = $_POST['unidade'];
 
     if ($edit_id > 0) {
         // Atualizar
-        $stmt = $conn->prepare("UPDATE rampas_mostura SET temperatura=?, tempo=?, descricao=? WHERE id=?");
+        $stmt = $conn->prepare("UPDATE ingredientes_malte SET nome=?, quantidade=?, unidade=? WHERE id=?");
 
         if (!$stmt) {
             die("Erro na preparação: " . $conn->error);
         }
 
-        $stmt->bind_param("disi", $temperatura, $tempo, $descricao, $edit_id);
+        //$stmt->bind_param("isds", $nome, $quantidade, $unidade, $edit_id);
+        $stmt->bind_param("sdsi", $nome, $quantidade, $unidade, $edit_id);
     } else {
         // Inserir
-        $stmt = $conn->prepare("INSERT INTO rampas_mostura (ficha_id, temperatura, tempo, descricao) VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO ingredientes_malte (ficha_id, nome, quantidade, unidade) VALUES (?, ?, ?, ?)");
 
         if (!$stmt) {
             die("Erro na preparação: " . $conn->error);
         }
 
-        $stmt->bind_param("idis", $ficha_id, $temperatura, $tempo, $descricao);
+        $stmt->bind_param("isds", $ficha_id, $nome, $quantidade, $unidade);
     }
 
     if ($stmt->execute()) {
-        header("Location: rampas.php?ficha_id=" . $ficha_id);
+        header("Location: maltes.php?ficha_id=" . $ficha_id);
         exit;
     } else {
         echo "Erro ao salvar: " . $conn->error;
@@ -70,7 +70,7 @@ if (isset($_POST['salvar'])) {
 // Excluir
 if (isset($_GET['delete'])) {
     $delete_id = intval($_GET['delete']);
-    $stmt = $conn->prepare("DELETE FROM rampas_mostura WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM ingredientes_malte WHERE id = ?");
 
     if (!$stmt) {
         die("Erro na preparação: " . $conn->error);
@@ -78,15 +78,15 @@ if (isset($_GET['delete'])) {
 
     $stmt->bind_param("i", $delete_id);
     if ($stmt->execute()) {
-        header("Location: rampas.php?ficha_id=" . $ficha_id);
+        header("Location: maltes.php?ficha_id=" . $ficha_id);
         exit;
     } else {
         echo "Erro ao excluir: " . $conn->error;
     }
 }
 
-// Buscar todas as rampas da ficha
-$stmt = $conn->prepare("SELECT * FROM rampas_mostura WHERE ficha_id = ?");
+// Buscar todas os maltes da ficha
+$stmt = $conn->prepare("SELECT * FROM ingredientes_malte WHERE ficha_id = ?");
 
 if (!$stmt) {
     die("Erro na preparação: " . $conn->error);
@@ -94,14 +94,14 @@ if (!$stmt) {
 
 $stmt->bind_param("i", $ficha_id);
 $stmt->execute();
-$rampas = $stmt->get_result();
+$maltes = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Rampas de Temperatura</title>
+    <title>Maltes utilizados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -114,49 +114,53 @@ $rampas = $stmt->get_result();
     </div>
 <?php endif; ?>
 
-<div class="container mt-5">
-    <h2>Adicionar Rampa</h2>
-    <form method="POST">
-        <input type="hidden" name="edit_id" value="<?= $edit_id ?>">
+<div class="container py-5">
+    <h2>Adicionar Malte</h2>
+    <form method="post">
+            <input type="hidden" name="edit_id" value="<?= $edit_id ?>">
+        <div class="mb-3">
+            <label>Nome do Malte</label>
+            <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($nome) ?>" required>
+        </div>
         <div class="row mb-3">
             <div class="col">
-                <label>Temperatura (°C)</label>
-                <input type="number" step="0.01" name="temperatura" class="form-control" required value="<?= htmlspecialchars($temperatura) ?>">
+                <label>Quantidade</label>
+                <input type="number" step="0.01" name="quantidade" class="form-control" value="<?= htmlspecialchars($quantidade) ?>" required>
             </div>
             <div class="col">
-                <label>Tempo (min)</label>
-                <input type="number" name="tempo" class="form-control" required value="<?= htmlspecialchars($tempo) ?>">
+                <label>Unidade</label>
+                <select name="unidade" class="form-select" required>
+                    <option value="KG" <?= $unidade === 'KG' ? 'selected' : '' ?>>KG</option>
+                    <option value="G" <?= $unidade === 'G' ? 'selected' : '' ?>>G</option>
+                    <option value="MG" <?= $unidade === 'MG' ? 'selected' : '' ?>>MG</option>
+                </select>
             </div>
-        </div>
-        <div class="mb-3">
-            <label>Descrição da Função</label>
-            <input type="text" name="descricao" class="form-control" value="<?= htmlspecialchars($descricao) ?>">
         </div>
         <button type="submit" name="salvar" class="btn btn-success">Salvar</button>
         <a href="../index.php" class="btn btn-secondary">Voltar</a>
     </form>
 <div>
-    
+
     <hr>
 
-    <h3>Rampas Cadastradas</h3>
+    <h3>Maltes Cadastrados</h3>
     <table class="table table-bordered">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Temperatura (°C)</th>
-                <th>Tempo (min)</th>
-                <th>Descrição</th>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Unidade</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-        <?php while ($r = $rampas->fetch_assoc()): ?>
+        <?php while ($r = $maltes->fetch_assoc()): ?>
             <tr>
                 <td><?= $r['id'] ?></td>
-                <td><?= $r['temperatura'] ?></td>
-                <td><?= $r['tempo'] ?></td>
-                <td><?= htmlspecialchars($r['descricao']) ?></td>
+                <td><?= htmlspecialchars($r['nome']) ?></td>
+                <td><?= $r['quantidade'] ?></td>
+                <td><?= $r['unidade'] ?></td>
                 <td>
                     <a href="?ficha_id=<?= $ficha_id ?>&edit=<?= $r['id'] ?>" class="btn btn-sm btn-warning">Editar</a>
                     <a href="?ficha_id=<?= $ficha_id ?>&delete=<?= $r['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">Excluir</a>

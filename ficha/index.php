@@ -57,6 +57,7 @@
                         <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
                         <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Excluir?')">Excluir</a>
                         <a href="..\ficha\rampas\rampas.php?ficha_id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Rampas</a>
+                        <a href="..\ficha\maltes\maltes.php?ficha_id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Maltes</a>
                         <a href="view.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Ver</a>
                     </td>
                 </tr>
