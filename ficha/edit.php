@@ -8,7 +8,6 @@ $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 $ficha = $result->fetch_assoc();
-//$modo_dev = true; 
 
 if ($_POST) {
     /*----------------------------------------------

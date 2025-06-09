@@ -102,7 +102,7 @@ $maltes = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Maltes utilizados</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -137,7 +137,9 @@ $maltes = $stmt->get_result();
             </div>
         </div>
         <button type="submit" name="salvar" class="btn btn-success">Salvar</button>
-        <a href="../index.php" class="btn btn-secondary">Voltar</a>
+        <!--a href="../ingredientes.php" class="btn btn-secondary">Voltar</a-->
+        <a href="../ingredientes.php?ficha_id=<?= $ficha_id ?>" class="btn btn-secondary">Voltar</a>
+
     </form>
 <div>
 

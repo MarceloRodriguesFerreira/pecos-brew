@@ -29,4 +29,4 @@ ALTER TABLE ficha_brassagem
 MODIFY COLUMN ibu varchar(9);
 
 ALTER TABLE ficha_brassagem 
-CHANGE COLUMN ebc src varchar(11);
+CHANGE COLUMN src srm varchar(11);

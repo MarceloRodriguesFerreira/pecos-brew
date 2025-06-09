@@ -25,11 +25,12 @@ CREATE TABLE ingredientes_lupulo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ficha_id INT,
     nome VARCHAR(100),
+    idx_alfa_acido DECIMAL(10,2),
     quantidade DECIMAL(10,2),
     tempo_adicao VARCHAR(50),
     FOREIGN KEY (ficha_id) REFERENCES ficha_brassagem(id)
 );
-
+ 
 -- Tabela de Levedura
 CREATE TABLE ingredientes_levedura (
     id INT AUTO_INCREMENT PRIMARY KEY,
