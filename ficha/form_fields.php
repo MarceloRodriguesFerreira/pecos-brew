@@ -10,24 +10,6 @@
            value="<?= isset($ficha['estilo']) ? $ficha['estilo'] : '' ?>">
 </div>
 
-<!--div class="mb-3">
-    <label class="form-label">Número do Lote</label>
-    <input type="text" name="numero_lote" class="form-control" 
-           value="<= isset($ficha['numero_lote']) ? $ficha['numero_lote'] : '' ?>" required>
-</div>
-
-<div class="mb-3">
-    <label class="form-label">Data da Brassagem</label>
-    <input type="date" name="data_brassagem" class="form-control" 
-           value="<= isset($ficha['data_brassagem']) ? $ficha['data_brassagem'] : '' ?>" required>
-</div>
-
-<div class="mb-3">
-    <label class="form-label">Cervejeiro Responsável</label>
-    <input type="text" name="cervejeiro_responsavel" class="form-control" 
-           value="<= isset($ficha['cervejeiro_responsavel']) ? $ficha['cervejeiro_responsavel'] : '' ?>">
-</div-->
-
 <!--Linha com 3 campos lado a lado -->
 <div class="row mb-3">
     <div class="col">

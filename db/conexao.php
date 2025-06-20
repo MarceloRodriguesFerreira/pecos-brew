@@ -4,6 +4,9 @@ $username = "root";
 $password = "tafe2006";
 $database = "pecosbrew";
 $modo_dev = true; 
+$erros_amigaveis = []; // Armazena mensagens de erro
+
+
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $database);

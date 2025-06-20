@@ -1,13 +1,11 @@
 <?php
 include("../../db/conexao.php");
-include_once("../../uteis/functions.php");
 
 $ficha_id = isset($_GET['ficha_id']) ? intval($_GET['ficha_id']) : 0;
 
 $nome = '';
 $quantidade = '';
 $unidade = '';
-$tipo = '';
 $edit_id = 0;
 
 // Buscar malte para edição
@@ -28,39 +26,37 @@ if (isset($_GET['edit'])) {
         $nome = $dados['nome'];
         $quantidade = $dados['quantidade'];
         $unidade = $dados['unidade'];
-        $tipo = $dados['tipo'];
     } else {
         echo "Erro ao buscar rampa: " . $conn->error;
     }
 }
 
 // Salvar ou Atualizar
-/*if (isset($_POST['salvar'])) {
+if (isset($_POST['salvar'])) {
     $edit_id = intval($_POST['edit_id']);
     $nome = $_POST['nome'];
     $quantidade = $_POST['quantidade'];
     $unidade = $_POST['unidade'];
-    $tipo = $_POST['tipo'];
 
     if ($edit_id > 0) {
         // Atualizar
-        $stmt = $conn->prepare("UPDATE ingredientes_malte SET nome=?, quantidade=?, unidade=?, tipo=? WHERE id=?");
+        $stmt = $conn->prepare("UPDATE ingredientes_malte SET nome=?, quantidade=?, unidade=? WHERE id=?");
 
         if (!$stmt) {
             die("Erro na preparação: " . $conn->error);
         }
 
         //$stmt->bind_param("isds", $nome, $quantidade, $unidade, $edit_id);
-        $stmt->bind_param("sdssi", $nome, $quantidade, $unidade, $edit_id);
+        $stmt->bind_param("sdsi", $nome, $quantidade, $unidade, $edit_id);
     } else {
         // Inserir
-        $stmt = $conn->prepare("INSERT INTO ingredientes_malte (ficha_id, nome, quantidade, unidade, tipo) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO ingredientes_malte (ficha_id, nome, quantidade, unidade) VALUES (?, ?, ?, ?)");
 
         if (!$stmt) {
             die("Erro na preparação: " . $conn->error);
         }
 
-        $stmt->bind_param("isdss", $ficha_id, $nome, $quantidade, $unidade, $tipo);
+        $stmt->bind_param("isds", $ficha_id, $nome, $quantidade, $unidade);
     }
 
     if ($stmt->execute()) {
@@ -68,39 +64,6 @@ if (isset($_GET['edit'])) {
         exit;
     } else {
         echo "Erro ao salvar: " . $conn->error;
-    }
-}*/
-if (isset($_POST['salvar'])) {
-    $edit_id = intval($_POST['edit_id']);
-    $nome = $_POST['nome'];
-    $quantidade = $_POST['quantidade'];
-    $unidade = $_POST['unidade'];
-    $tipo = $_POST['tipo'];
-
-    if ($edit_id > 0) {
-        $stmt = $conn->prepare("UPDATE ingredientes_malte SET nome=?, quantidade=?, unidade=?, tipo=? WHERE id=?");
-        if (!$stmt) {
-            adicionarErro("Erro ao preparar atualização." . $conn->error);
-        } else {
-            $stmt->bind_param("sdssi", $nome, $quantidade, $unidade, $tipo, $edit_id);
-        }
-    } else {
-        $stmt = $conn->prepare("INSERT INTO ingredientes_malte (ficha_id, nome, quantidade, unidade, tipo) VALUES (?, ?, ?, ?, ?)");
-        if (!$stmt) {
-            adicionarErro("Erro ao preparar inserção." . $conn->error);
-        } else {
-            $stmt->bind_param("isdss", $ficha_id, $nome, $quantidade, $unidade, $tipo);
-        }
-    }
-
-    if (isset($stmt) && !$stmt->execute()) {
-        adicionarErro("Erro ao salvar " . $conn->error);
-    }
-
-    // Redirecionamento só se tudo estiver certo
-    if (empty($erros_amigaveis)) {
-        header("Location: maltes.php?ficha_id=" . $ficha_id);
-        exit;
     }
 }
 
@@ -110,8 +73,7 @@ if (isset($_GET['delete'])) {
     $stmt = $conn->prepare("DELETE FROM ingredientes_malte WHERE id = ?");
 
     if (!$stmt) {
-        //die("Erro na preparação: " . $conn->error);
-        adicionarErro("Erro ao preparar atualização." . $conn->error);
+        die("Erro na preparação: " . $conn->error);
     }
 
     $stmt->bind_param("i", $delete_id);
@@ -119,8 +81,7 @@ if (isset($_GET['delete'])) {
         header("Location: maltes.php?ficha_id=" . $ficha_id);
         exit;
     } else {
-        //echo "Erro ao excluir: " . $conn->error;
-        adicionarErro("Erro ao excluir:" . $conn->error);
+        echo "Erro ao excluir: " . $conn->error;
     }
 }
 
@@ -141,19 +102,15 @@ $maltes = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Maltes utilizados</title>
-    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
 <?php include("../navbar.php"); ?>
 
-<?php if (!empty($erros_amigaveis)): ?>
+<?php if (isset($erro)): ?>
     <div class="alert alert-danger">
-        <ul>
-            <?php foreach ($erros_amigaveis as $erro): ?>
-                <li><?= htmlspecialchars($erro) ?></li>
-            <?php endforeach; ?>
-        </ul>
+        <?= $erro ?>
     </div>
 <?php endif; ?>
 
@@ -178,22 +135,9 @@ $maltes = $stmt->get_result();
                     <option value="MG" <?= $unidade === 'MG' ? 'selected' : '' ?>>MG</option>
                 </select>
             </div>
-            <div class="col">
-                <label>Tipo</label>
-                <select name="tipo" class="form-select" required>
-                    <option value="Grão" <?= $tipo === 'Grão' ? 'selected' : '' ?>>Grão</option>
-                    <option value="Açúcar" <?= $tipo === 'Açúcar' ? 'selected' : '' ?>>Açúcar</option>
-                    <option value="Extrato Líquido" <?= $tipo === 'Extrato Líquido' ? 'selected' : '' ?>>Extrato Líquido</option>
-                    <option value="Extrato Seco" <?= $tipo === 'Extrato Seco' ? 'selected' : '' ?>>Extrato Seco</option>
-                    <option value="Adjunto" <?= $tipo === 'Adjunto' ? 'selected' : '' ?>>Adjunto</option>
-                    <option value="Outros" <?= $tipo === 'Outros' ? 'selected' : '' ?>>Outros</option>
-                </select>
-            </div>
         </div>
         <button type="submit" name="salvar" class="btn btn-success">Salvar</button>
-        <!--a href="../ingredientes.php" class="btn btn-secondary">Voltar</a-->
-        <a href="../ingredientes.php?ficha_id=<?= $ficha_id ?>" class="btn btn-secondary">Voltar</a>
-
+        <a href="../index.php" class="btn btn-secondary">Voltar</a>
     </form>
 <div>
 
@@ -207,7 +151,6 @@ $maltes = $stmt->get_result();
                 <th>Nome</th>
                 <th>Quantidade</th>
                 <th>Unidade</th>
-                <th>Tipo</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -218,7 +161,6 @@ $maltes = $stmt->get_result();
                 <td><?= htmlspecialchars($r['nome']) ?></td>
                 <td><?= $r['quantidade'] ?></td>
                 <td><?= $r['unidade'] ?></td>
-                <td><?= $r['tipo'] ?></td>
                 <td>
                     <a href="?ficha_id=<?= $ficha_id ?>&edit=<?= $r['id'] ?>" class="btn btn-sm btn-warning">Editar</a>
                     <a href="?ficha_id=<?= $ficha_id ?>&delete=<?= $r['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">Excluir</a>

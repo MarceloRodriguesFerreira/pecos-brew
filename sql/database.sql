@@ -16,7 +16,9 @@ CREATE TABLE ingredientes_malte (
     ficha_id INT,
     nome VARCHAR(100),
     quantidade DECIMAL(10,2),
-    unidade VARCHAR(20),
+    unidade VARCHAR(2),
+    tipo VARCHAR(20),
+    cor  INT
     FOREIGN KEY (ficha_id) REFERENCES ficha_brassagem(id)
 );
 
@@ -27,7 +29,8 @@ CREATE TABLE ingredientes_lupulo (
     nome VARCHAR(100),
     idx_alfa_acido DECIMAL(10,2),
     quantidade DECIMAL(10,2),
-    tempo_adicao VARCHAR(50),
+    tempo_adicao int,
+    uso VARCHAR(15),
     FOREIGN KEY (ficha_id) REFERENCES ficha_brassagem(id)
 );
  

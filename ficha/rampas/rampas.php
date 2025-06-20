@@ -1,5 +1,7 @@
 <?php
 include("../../db/conexao.php");
+include_once("../../uteis/functions.php");
+
 
 $ficha_id = isset($_GET['ficha_id']) ? intval($_GET['ficha_id']) : 0;
 
@@ -133,7 +135,6 @@ $rampas = $stmt->get_result();
             <input type="text" name="descricao" class="form-control" value="<?= htmlspecialchars($descricao) ?>">
         </div>
         <button type="submit" name="salvar" class="btn btn-success">Salvar</button>
-        <!--a href="../ingredientes.php" class="btn btn-secondary">Voltar</a-->
         <a href="../ingredientes.php?ficha_id=<?= $ficha_id ?>" class="btn btn-secondary">Voltar</a>
 
     </form>

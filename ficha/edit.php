@@ -9,25 +9,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 $ficha = $result->fetch_assoc();
 
-if ($_POST) {
-    /*----------------------------------------------
-    echo '<pre>';
-    print_r($_POST);
-    echo '</pre>';
-    
-    $sqlDebug = sprintf(
-        "UPDATE ficha_brassagem SET nome_receita='%s', estilo='%s', numero_lote='%s', data_brassagem='%s', cervejeiro_responsavel='%s', tempo_fervura=%s, og='%s', fg='%s', ibu='%s', srm='%s', eficiencia=%s, volume_inicial=%s, volume_final=%s, temperatura_fermentacao=%s, tempo_fermentacao=%s, temperatura_maturacao=%s, tempo_maturacao=%s, tipo_envase='%s', volume_envase=%s, carbonatacao='%s', observacoes='%s' WHERE id=%s",
-        $_POST['nome_receita'], $_POST['estilo'], $_POST['numero_lote'], $_POST['data_brassagem'], $_POST['cervejeiro_responsavel'],
-        $_POST['tempo_fervura'], $_POST['og'], $_POST['fg'], $_POST['ibu'], $_POST['srm'], $_POST['eficiencia'], $_POST['volume_inicial'], 
-        $_POST['volume_final'], $_POST['temperatura_fermentacao'], $_POST['tempo_fermentacao'], $_POST['temperatura_maturacao'],
-        $_POST['tempo_maturacao'], $_POST['tipo_envase'], $_POST['volume_envase'], $_POST['carbonatacao'], $_POST['observacoes'], $id
-    );
-    
-    echo "<pre>SQL Montado:\n$sqlDebug\n</pre>";
-    
-    die("Debug finalizado.");
-    //----------------------------*/
 
+if ($_POST) {
     $eficiencia = str_replace(',', '.', $_POST['eficiencia']);
     $volume_inicial = str_replace(',', '.', $_POST['volume_inicial']);
     $volume_final = str_replace(',', '.', $_POST['volume_final']);    
