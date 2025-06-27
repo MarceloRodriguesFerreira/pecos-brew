@@ -41,28 +41,32 @@
             </tr>
         </thead>
         <tbody>
-        <?php
-        $sql = "SELECT * FROM ficha_brassagem";
-        $result = $conn->query($sql);
+            <?php
+            $sql = "SELECT * FROM ficha_brassagem";
 
-        if ($result->num_rows > 0):
-            while($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= $row["id"] ?></td>
-                    <td><?= htmlspecialchars($row["nome_receita"]) ?></td>
-                    <td><?= htmlspecialchars($row["numero_lote"]) ?></td>
-                    <td><?= htmlspecialchars($row["data_brassagem"]) ?></td>
-                    <td><?= htmlspecialchars($row["estilo"]) ?></td>
-                    <td>
-                        <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
-                        <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Excluir?')">Excluir</a>
-                        <a href="..\ficha\ingredientes.php?ficha_id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Ingredientes</a>
-                        <a href="view.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Ficha</a>
-                    </td>
-                </tr>
-        <?php endwhile; else: ?>
-            <tr><td colspan="6" class="text-center">Nenhuma ficha cadastrada.</td></tr>
-        <?php endif; ?>
+            $result = $conn->query($sql);
+
+            if ($result && $result->num_rows > 0): 
+                while($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= $row["id"] ?></td>
+                        <td><?= htmlspecialchars($row["nome_receita"]) ?></td>
+                        <td><?= htmlspecialchars($row["numero_lote"]) ?></td>
+                        <td><?= htmlspecialchars($row["data_brassagem"]) ?></td>
+                        <td><?= htmlspecialchars($row["estilo"]) ?></td>
+                        <td>
+                            <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
+                            <a href="delete.php?id=<?= $row['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Excluir?')">Excluir</a>
+                            <a href="ingredientes.php?ficha_id=<?= $row['id'] ?>" class="btn btn-warning btn-sm">Ingredientes</a>
+                            <a href="view.php?id=<?= $row['id'] ?>" class="btn btn-info btn-sm">Ficha</a>
+                        </td>
+                    </tr>
+            <?php endwhile; ?>
+            <?php elseif ($result): ?>
+                <tr><td colspan="6" class="text-center">Nenhuma ficha cadastrada.</td></tr>
+            <?php else: ?>
+                <tr><td colspan="6" class="text-center text-danger">Erro ao carregar as fichas.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
 </div>
