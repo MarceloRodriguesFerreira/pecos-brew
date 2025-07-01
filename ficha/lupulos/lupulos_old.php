@@ -11,40 +11,30 @@ $tempo_adicao = 0;
 $edit_id = 0;
 $uso = '';
 
-// Buscar OG e volume final da ficha de brassagem
-$og = 1.050;
-$volume = 20;
-$stmt_ficha = $conn->prepare("SELECT og, volume_final FROM ficha_brassagem WHERE id = ?");
-$stmt_ficha->bind_param("s", $ficha_id);
-$stmt_ficha->execute();
-$res_ficha = $stmt_ficha->get_result();
-if ($res_ficha && $res_ficha->num_rows > 0) {
-    $dados_ficha = $res_ficha->fetch_assoc();
-    if (strpos($dados_ficha['og'], '-') !== false) {
-        $faixa = explode('-', $dados_ficha['og']);
-        if (count($faixa) === 2) {
-            $og = floatval("1." . $faixa[1]);
-        }
-    } else {
-        $og = floatval("1." . $dados_ficha['og']);
-    }
-    $volume = floatval($dados_ficha['volume_final']);
-}
-
 // Buscar lúpulo para edição
 if (isset($_GET['edit'])) {
     $edit_id = intval($_GET['edit']);
-    $stmt_edit = $conn->prepare("SELECT * FROM ingredientes_lupulo WHERE id = ?");
-    if ($stmt_edit && $stmt_edit->bind_param("i", $edit_id) && $stmt_edit->execute()) {
-        $result = $stmt_edit->get_result();
-        if ($result && $result->num_rows > 0) {
-            $dados = $result->fetch_assoc();
-            $nome = $dados['nome'];
-            $idx_alfa_acido = $dados['idx_alfa_acido'];
-            $quantidade = $dados['quantidade'];
-            $tempo_adicao = $dados['tempo_adicao'];
-            $uso = $dados['uso'];
-        }
+    $stmt = $conn->prepare("SELECT * FROM ingredientes_lupulo WHERE id = ?");
+
+    if (!$stmt) {
+        die("Erro ao preparar statement: " . $conn->error);
+    } elseif (!$stmt->bind_param("i", $edit_id)) {
+        $erro = tratarErro("Erro ao vincular os dados.", $stmt, $modo_dev);
+    } elseif (!$stmt->execute()) {
+        $erro = tratarErro("Erro ao executar a operação.", $stmt, $modo_dev);
+    } /*else {*/
+
+
+    //$stmt->bind_param("i", $edit_id);
+    //$stmt->execute();
+    $result = $stmt->get_result();
+    if ($result && $result->num_rows > 0) {
+        $dados = $result->fetch_assoc();
+        $nome = $dados['nome'];
+        $idx_alfa_acido = $dados['idx_alfa_acido'];
+        $quantidade = $dados['quantidade'];
+        $tempo_adicao = $dados['tempo_adicao'];
+        $uso = $dados['uso'];
     }
 }
 
@@ -59,10 +49,23 @@ if (isset($_POST['salvar'])) {
 
     if ($edit_id > 0) {
         $stmt = $conn->prepare("UPDATE ingredientes_lupulo SET nome=?, idx_alfa_acido=?, quantidade=?, tempo_adicao=?, uso=? WHERE id=?");
+
+        if (!$stmt) {
+            die("Erro ao preparar statement: " . $conn->error);
+            $erro = tratarErro("Erro ao preparar statement:", $conn, $modo_dev);
+        }
+
         $stmt->bind_param("sdddsi", $nome, $idx_alfa_acido, $quantidade, $tempo_adicao, $uso, $edit_id);
     } else {
         $stmt = $conn->prepare("INSERT INTO ingredientes_lupulo (ficha_id, nome, idx_alfa_acido, quantidade, tempo_adicao, uso) VALUES (?, ?, ?, ?, ?, ?)");
+        
+        if (!$stmt) {
+            die("Erro ao preparar statement: " . $conn->error);
+            $erro = tratarErro("Erro ao preparar statement:", $conn, $modo_dev);
+        }        
+        //$stmt->bind_param("isdss", $ficha_id, $nome, $idx_alfa_acido, $quantidade, $tempo_adicao);
         $stmt->bind_param("isddis", $ficha_id, $nome, $idx_alfa_acido, $quantidade, $tempo_adicao, $uso);
+
     }
 
     if ($stmt->execute()) {
@@ -77,30 +80,79 @@ if (isset($_POST['salvar'])) {
 if (isset($_GET['delete'])) {
     $delete_id = intval($_GET['delete']);
     $stmt = $conn->prepare("DELETE FROM ingredientes_lupulo WHERE id = ?");
-    if ($stmt && $stmt->bind_param("i", $delete_id) && $stmt->execute()) {
+
+    if (!$stmt) {
+        die("Erro ao preparar statement: " . $conn->error);
+    }
+  
+    if (!$stmt->bind_param("i", $delete_id)) {
+        $erro = tratarErro("Erro ao vincular os dados.", $stmt, $modo_dev);
+    } 
+
+    if ($stmt->execute()) {
         header("Location: lupulos.php?ficha_id=" . $ficha_id);
         exit;
     } else {
         echo "Erro ao excluir: " . $conn->error;
+        $erro = tratarErro("Erro ao preparar a operação no banco.", $conn, $modo_dev);
     }
+
+
 }
 
-// Buscar todos os lúpulos da ficha para exibir e calcular IBUs
+// Buscar todos os lúpulos da ficha
+$stmt = $conn->prepare("SELECT * FROM ingredientes_lupulo WHERE ficha_id = ?");
+
+if (!$stmt) {
+    die("Erro ao preparar statement: " . $conn->error);
+    $erro = tratarErro("Erro ao preparar statement:", $conn, $modo_dev);
+}
+
+$stmt->bind_param("i", $ficha_id);
+$stmt->execute();
+$lupulos = $stmt->get_result();
+
+// ------------------- CALCULOS DE IBU ---------------------------
+
+// Buscar OG e Volume da ficha de brassagem
+$stmt = $conn->prepare("SELECT og, volume_final FROM ficha_brassagem WHERE id = ?");
+$stmt->bind_param("s", $ficha_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+//$og = 1.050; // valor padrão caso não encontre
+$volume = 20; // valor padrão
+
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+
+    $og_faixa = $row['og'];
+
+    if (preg_match('/-(\d{3,4})$/', $og_faixa, $matches)) {
+        $og_valor = floatval("1." . $matches[1]);
+    } else {
+        $og_valor = 1.050;
+    }
+
+    $og = floatval($og_valor);
+    $volume = floatval($row['volume_final']);
+}
+
+/*// Buscar lúpulos da ficha
 $stmt = $conn->prepare("SELECT * FROM ingredientes_lupulo WHERE ficha_id = ?");
 $stmt->bind_param("i", $ficha_id);
 $stmt->execute();
-$result_lupulos = $stmt->get_result();
+$lupulos = $stmt->get_result();   */
 
-$ibu_total = 0;
-$lupulos_array = [];
-if ($result_lupulos) {
-    while ($lup = $result_lupulos->fetch_assoc()) {
-        $lupulos_array[] = $lup;
-        if (strtolower($lup['uso']) === 'fervura') {
-            $ibu_total += calcularIBU($lup['idx_alfa_acido'], $lup['quantidade'], $lup['tempo_adicao'], $volume, $og);
-        }
+// Somar IBUs de lúpulos de fervura
+//$ibu_total = 0;
+/*while ($lup = $lupulos->fetch_assoc()) {
+    if (strtolower($lup['uso']) === 'fervura') {
+        $ibu = calcularIBU($lup['idx_alfa_acido'], $lup['quantidade'], $lup['tempo_adicao'], $volume, $og);
+        $ibu_total += $ibu;
     }
-}
+} */
+
 ?>
 
 <!DOCTYPE html>
@@ -113,6 +165,10 @@ if ($result_lupulos) {
 <body>
 
 <?php include("../navbar.php"); ?>
+
+<?php if (isset($erro)): ?>
+    <div class="alert alert-danger"><?= $erro ?></div>
+<?php endif; ?>
 
 <div class="container py-5">
     <h2>Adicionar Lúpulo</h2>
@@ -134,7 +190,7 @@ if ($result_lupulos) {
                 <input type="number" step="0.01" name="quantidade" class="form-control" value="<?= htmlspecialchars($quantidade) ?>" required>
             </div>
             <div class="col-md-3">
-                <label>Tempo de Aditção (min)</label>
+                <label>Tempo de Adição (min)</label>
                 <input type="number" name="tempo_adicao" class="form-control" value="<?= htmlspecialchars($tempo_adicao) ?>" required>
             </div>
             <div class="col-md-3">
@@ -156,10 +212,6 @@ if ($result_lupulos) {
     <hr>
 
     <h3>Lúpulos Cadastrados</h3>
-    <div class="alert alert-info">
-        <strong>IBUs estimados:</strong> <?= $ibu_total ?> <br>
-        <small>(OG: <?= $og ?> | Volume: <?= $volume ?> L)</small>
-    </div>
     <table class="table table-bordered">
         <thead class="table-dark">
             <tr>
@@ -167,13 +219,13 @@ if ($result_lupulos) {
                 <th>Nome</th>
                 <th>Alfa Ácido (%)</th>
                 <th>Quantidade (g)</th>
-                <th>Tempo de Aditção</th>
+                <th>Tempo de Adição</th>
                 <th>Uso</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-        <?php foreach ($lupulos_array as $r): ?>
+        <?php while ($r = $lupulos->fetch_assoc()): ?>
             <tr>
                 <td><?= $r['id'] ?></td>
                 <td><?= htmlspecialchars($r['nome']) ?></td>
@@ -186,9 +238,14 @@ if ($result_lupulos) {
                     <a href="?ficha_id=<?= $ficha_id ?>&delete=<?= $r['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">Excluir</a>
                 </td>
             </tr>
-        <?php endforeach; ?>
+        <?php endwhile; ?>
         </tbody>
     </table>
+</div>
+
+<div class="alert alert-info">
+    <strong>IBUs estimados:</strong> <?= calcularIBUReceita($ficha_id) ?> <br>
+    <small>(OG: <?= $og ?> | Volume: <?= $volume ?> L)</small>
 </div>
 
 </body>
