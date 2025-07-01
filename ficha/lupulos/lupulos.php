@@ -134,7 +134,7 @@ if ($result_lupulos) {
                 <input type="number" step="0.01" name="quantidade" class="form-control" value="<?= htmlspecialchars($quantidade) ?>" required>
             </div>
             <div class="col-md-3">
-                <label>Tempo de Aditção (min)</label>
+                <label>Tempo de Adição (min)</label>
                 <input type="number" name="tempo_adicao" class="form-control" value="<?= htmlspecialchars($tempo_adicao) ?>" required>
             </div>
             <div class="col-md-3">
@@ -167,7 +167,7 @@ if ($result_lupulos) {
                 <th>Nome</th>
                 <th>Alfa Ácido (%)</th>
                 <th>Quantidade (g)</th>
-                <th>Tempo de Aditção</th>
+                <th>Tempo de Adição</th>
                 <th>Uso</th>
                 <th>Ações</th>
             </tr>
